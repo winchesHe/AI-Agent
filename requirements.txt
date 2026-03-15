@@ -1,0 +1,8 @@
+# OpenAI 兼容 API 客户端
+openai>=1.0.0
+
+# 环境变量 .env 加载
+python-dotenv>=1.0.0
+
+# SerpApi 客户端（import 名为 serpapi）
+google-search-results>=2.4.2
