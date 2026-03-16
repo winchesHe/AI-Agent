@@ -1,7 +1,12 @@
 """
 Plan-and-Solve Agent 独立运行脚本。
-从项目根目录执行: python -m src.scripts.run_plan_and_solve
+从项目根目录执行: python -m src.scripts.run_plan_and_solve 或 python src/scripts/run_plan_and_solve.py
 """
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from dotenv import load_dotenv
 
 from core.agent.plan_and_solve_agent import PlanAndSolveAgent

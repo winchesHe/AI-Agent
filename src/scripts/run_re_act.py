@@ -1,7 +1,12 @@
 """
 ReAct Agent 独立运行脚本。
-从项目根目录执行: python -m src.scripts.run_re_act
+从项目根目录执行: python -m src.scripts.run_re_act 或 python src/scripts/run_re_act.py
 """
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from dotenv import load_dotenv
 
 from core.agent.re_act_agent import ReActAgent

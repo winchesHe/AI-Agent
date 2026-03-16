@@ -1,7 +1,12 @@
 """
 Reflection Agent 独立运行脚本。
-从项目根目录执行: python -m src.scripts.run_reflection
+从项目根目录执行: python -m src.scripts.run_reflection 或 python src/scripts/run_reflection.py
 """
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from dotenv import load_dotenv
 
 from core.agent.reflection_agent import ReflectionAgent
