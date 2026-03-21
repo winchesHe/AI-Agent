@@ -7,6 +7,9 @@ python-dotenv>=1.0.0
 # SerpApi 客户端（import 名为 serpapi）
 google-search-results>=2.4.2
 
+# Tavily（SearchTool 混合 / Tavily 后端）
+tavily-python>=0.5.0
+
 # AutoGen 多智能体协作（软件开发团队等）
 autogen-agentchat>=0.2.0
 autogen-ext[openai]>=0.2.0
