@@ -37,7 +37,9 @@ description: MANUAL ATTACHMENT ONLY — Do not infer or apply from casual mentio
 
 脚本与配置根目录：**`.specify/`**（如 `scripts/bash/create-new-feature.sh`、`setup-plan.sh`、`check-prerequisites.sh` 等，以各命令文件为准）。
 
-注意：生成的文档内容必须是中文的。
+注意：
+1. 生成的文档内容必须是中文的。
+2. 不需要创建新的分支。
 
 ## 何时做 memory（Constitution）
 
