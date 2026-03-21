@@ -35,9 +35,15 @@ class HelloAgentsLLM:
 
         self.client = OpenAI(api_key=apiKey, base_url=baseUrl, timeout=timeout)
 
-    def think(self, messages: List[Dict[str, str]], temperature: float = 0) -> str:
+    def think(
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float = 0,
+        stream: bool = True,
+    ) -> str:
         """
         调用大语言模型进行思考，并返回其响应。
+        stream=False 时一次性返回全文，适合多轮对话循环中避免交错打印。
         """
         print(f"🧠 正在调用 {self.model} 模型...")
         try:
@@ -45,17 +51,21 @@ class HelloAgentsLLM:
                 model=self.model,
                 messages=messages,
                 temperature=temperature,
-                stream=True,
+                stream=stream,
             )
 
-            # 处理流式响应
+            if not stream:
+                text = (response.choices[0].message.content or "").strip()
+                print("✅ 大语言模型响应成功（非流式）。")
+                return text
+
             print("✅ 大语言模型响应成功:")
             collected_content = []
             for chunk in response:
                 content = chunk.choices[0].delta.content or ""
                 print(content, end="", flush=True)
                 collected_content.append(content)
-            print()  # 在流式输出结束后换行
+            print()
             return "".join(collected_content)
 
         except Exception as e:
