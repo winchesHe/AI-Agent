@@ -13,3 +13,7 @@ autogen-ext[openai]>=0.2.0
 
 # 三国狼人杀：结构化输出与消息驱动 agent
 pydantic>=2.0.0
+
+# LangGraph：状态图 + 节点/边（三步搜索助手示例）
+langgraph>=0.2.0
+langchain-core>=0.3.0
