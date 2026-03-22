@@ -1,0 +1,80 @@
+# Hello-Agent 配置文件示例
+# 复制为 assistant.yaml 并按需修改
+
+schema_version: '1.0'
+
+# ── LLM 配置 ──────────────────────────────────
+llm:
+  provider: 'openai' # openai / modelscope / zhipu / vllm / ollama / local
+  model: 'gpt-5.4' # 模型标识
+  api_key_ref: 'LLM_API_KEY' # 环境变量名（非密钥本身）
+  base_url: null # 可选，覆盖默认基地址
+  timeout: 60 # 请求超时（秒）
+
+# ── Agent Loop ────────────────────────────────
+loop:
+  max_iterations: 10 # 单次任务最大迭代
+  max_wall_seconds: 300 # 墙钟超时（秒）
+  max_history_messages: 20 # 多轮对话最大历史消息数
+
+# ── 插件 ──────────────────────────────────────
+plugins:
+  search_paths:
+    # 相对本配置文件所在目录（仓库根与 assistant.yaml 同层时用 src/plugins）
+    - 'src/plugins'
+  enabled_ids: [] # 空 = 全部启用；指定 id 列表可精确控制
+  priority_overrides: {} # { "plugin-id": 100 }
+
+# ── MCP 端点（可选）────────────────────────────
+mcp:
+  servers: []
+  # - name: "example-mcp"
+  #   transport: "stdio"
+  #   command: "python"
+  #   args: ["-m", "mcp_server_example"]
+  #   env: {}
+  #   tools_list_ttl_seconds: 300
+
+# ── 常驻模式（可选）────────────────────────────
+daemon:
+  probe_interval_seconds: 60
+  shutdown_grace_seconds: 10
+  retry:
+    max_retries: 3
+    base_delay_seconds: 1.0
+    max_delay_seconds: 60.0
+    multiplier: 2.0
+
+# ── Telegram 入站（可选，见 specs/005-telegram-im/quickstart.md）──
+telegram:
+  enabled: true # true 时 main.py telegram run 要求 bot_token_ref 对应环境变量已设置
+  bot_token_ref: 'TELEGRAM_BOT_TOKEN'
+
+# ── 本地工作区（OpenClaw 式：显式根目录内读写）────────────────
+# allowed_roots 相对路径以本配置文件所在目录为基准
+workspace:
+  enabled: true
+  allowed_roots:
+    - '.' # 仅仓库/配置目录；可按需改为子目录以缩小暴露面
+  max_read_bytes: 262144
+  max_write_bytes: 262144
+
+# ── 安全策略 ──────────────────────────────────
+security:
+  inbound_default_policy: 'deny' # deny / allow
+  # local_workspace 可改本地文件，入站通道下应要求配对后再用
+  sensitive_plugin_ids:
+    - 'local_workspace'
+  # 相对路径以运行进程时的当前工作目录为准（请在仓库根目录执行 telegram run / pair）
+  pairing_store_path: '.data/pairings.json'
+
+# ── 日志 ──────────────────────────────────────
+logging:
+  level: 'INFO' # DEBUG / INFO / WARNING / ERROR
+  path: null # 日志文件路径（null = 仅控制台）
+  max_bytes: 10485760 # 10 MB
+  backup_count: 3
+
+# ── 资源限制（可选）────────────────────────────
+limits:
+  memory_mb_warn: null # 内存软上限告警阈值（MB）

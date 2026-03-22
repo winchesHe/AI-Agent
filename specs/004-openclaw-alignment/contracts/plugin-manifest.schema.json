@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local/hello-agent/specs/004-openclaw-alignment/plugin-manifest.schema.json",
+  "title": "PluginManifest",
+  "type": "object",
+  "required": ["id", "version", "kind"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1, "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+    "version": { "type": "string", "minLength": 1 },
+    "kind": {
+      "type": "string",
+      "enum": ["tool", "skill", "subagent"]
+    },
+    "entry_point": { "type": "string", "description": "module:attr 工厂或注册函数" },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["read_only", "network", "mutating", "delegate"]
+      }
+    },
+    "requires": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "priority": { "type": "integer" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,12 @@
+{
+  "id": "local_workspace",
+  "version": "0.1.0",
+  "kind": "tool",
+  "entry_point": "plugins.local_workspace.tool:create_tools",
+  "permissions": ["read_only", "mutating"],
+  "priority": 0,
+  "metadata": {
+    "name": "Local workspace",
+    "description": "在 assistant.yaml 的 workspace.allowed_roots 范围内列出目录、读取与写入文本文件。"
+  }
+}

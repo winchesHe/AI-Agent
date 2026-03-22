@@ -1,0 +1,17 @@
+[Unit]
+Description=Hello-Agent daemon (7×24 personal assistant)
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/path/to/Hello-Agent/src
+ExecStart=/usr/bin/python3 main.py daemon
+Restart=always
+RestartSec=10
+StartLimitIntervalSec=300
+StartLimitBurst=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

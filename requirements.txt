@@ -1,3 +1,9 @@
+# 目标运行时：Python 3.10+（与仓库 .cursor/rules 一致）。
+# 若默认 pip 指向 Python 3.9，会装不全带环境标记的包；请用 3.10+ 创建 venv，例如：
+#   python3.12 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+#
+# 下列依赖在 PyPI 上声明 Requires-Python >=3.10，在 3.9 下会被 pip 跳过（避免整文件安装失败）。
+
 # OpenAI 兼容 API 客户端
 openai>=1.0.0
 
@@ -10,13 +16,22 @@ google-search-results>=2.4.2
 # Tavily（SearchTool 混合 / Tavily 后端）
 tavily-python>=0.5.0
 
-# AutoGen 多智能体协作（软件开发团队等）
-autogen-agentchat>=0.2.0
-autogen-ext[openai]>=0.2.0
+# AutoGen 多智能体协作（软件开发团队等；需 Python>=3.10）
+autogen-agentchat>=0.2.0; python_version >= "3.10"
+autogen-ext[openai]>=0.2.0; python_version >= "3.10"
 
 # 三国狼人杀：结构化输出与消息驱动 agent
 pydantic>=2.0.0
 
-# LangGraph：状态图 + 节点/边（三步搜索助手示例）
-langgraph>=0.2.0
-langchain-core>=0.3.0
+# LangGraph：状态图 + 节点/边（三步搜索助手示例；需 Python>=3.10）
+langgraph>=0.2.0; python_version >= "3.10"
+langchain-core>=0.3.0; python_version >= "3.10"
+
+# 004-openclaw-alignment: 统一配置（YAML 加载）
+pyyaml>=6.0
+
+# 004-openclaw-alignment: MCP 客户端（可选，stdio 传输；需 Python>=3.10）
+mcp>=1.0.0; python_version >= "3.10"
+
+# 005-telegram-im: Telegram Bot 入站通道
+python-telegram-bot>=21.0

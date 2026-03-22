@@ -1,0 +1,11 @@
+{
+  "id": "example-tool",
+  "version": "0.1.0",
+  "kind": "tool",
+  "entry_point": "plugins.example_tool.tool:create_tool",
+  "permissions": ["read_only"],
+  "metadata": {
+    "name": "示例工具",
+    "description": "一个简单的回声工具，用于验证插件加载"
+  }
+}

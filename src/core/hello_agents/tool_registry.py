@@ -1,6 +1,7 @@
 """工具注册表：Tool / 函数注册、描述聚合、按名执行、OpenAI tools 载荷。"""
 from __future__ import annotations
 
+import json
 from typing import Any, Callable, Dict, List, Optional
 
 from .tools.base_tool import BaseTool
@@ -17,6 +18,21 @@ def _string_input_to_params(tool: BaseTool, tool_input: str) -> Dict[str, Any]:
     required = [p for p in plist if p.required]
     if len(required) == 1:
         return {required[0].name: tool_input}
+    if len(required) > 1 or len(plist) > 1:
+        stripped = tool_input.strip()
+        if stripped.startswith("{"):
+            try:
+                data = json.loads(stripped)
+            except json.JSONDecodeError:
+                pass
+            else:
+                if isinstance(data, dict):
+                    out: Dict[str, Any] = {}
+                    for p in plist:
+                        if p.name in data:
+                            out[p.name] = data[p.name]
+                    if required and all(r.name in out for r in required):
+                        return out
     if plist:
         return {plist[0].name: tool_input}
     return {"input": tool_input}

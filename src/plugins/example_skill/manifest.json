@@ -1,0 +1,11 @@
+{
+  "id": "example-skill",
+  "version": "0.1.0",
+  "kind": "skill",
+  "entry_point": "plugins.example_skill.skill:create_skill",
+  "permissions": ["read_only"],
+  "metadata": {
+    "name": "翻译技能",
+    "description": "一个简单的翻译提示技能，用于验证 Skill 插件加载"
+  }
+}

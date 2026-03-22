@@ -1,0 +1,11 @@
+{
+  "id": "example-subagent",
+  "version": "0.1.0",
+  "kind": "subagent",
+  "entry_point": "plugins.example_subagent.agent:create_subagent",
+  "permissions": ["read_only"],
+  "metadata": {
+    "name": "摘要子代理",
+    "description": "一个简单的摘要子代理，用于验证 SubAgent 插件加载"
+  }
+}

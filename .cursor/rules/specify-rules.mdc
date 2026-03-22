@@ -9,6 +9,11 @@ alwaysApply: true
 Auto-generated from all feature plans. Last updated: 2026-03-22
 
 ## Active Technologies
+- Python 3.10+（与仓库及 `.cursor/rules/specify-rules.mdc` 一致） + `openai`, `pydantic`, `python-dotenv`；工具链含 `google-search-results` / `tavily-python`（搜索类能力）；可选 `langgraph` / `langchain-core`（已有 LangGraph 示例，本特性默认以 `hello_agents` 栈为主路径以降低耦合） (004-openclaw-alignment)
+- 首期无强制数据库；配置来自环境变量与可选本地配置文件；**配对状态 / 轨迹持久化** 采用本地文件（JSON 或等价）即可满足 P3 验收，后续可抽象为可插拔存储 (004-openclaw-alignment)
+- Python 3.10+（与仓库一致） + 既有 `openai`、`pydantic`、`python-dotenv`；Agent Loop 首期复用 `core/hello_agents`（ReAct 等）并**抽象**为可插拔 `LoopDriver`；MCP 侧引入官方 **`mcp`（Python SDK）** 或等价 stdio 客户端（见 [research.md](./research.md)）；常驻可选 **`supervisor` 脚本 + launchd/systemd 单元** 或进程内 `asyncio` 长活循环（见 research） (004-openclaw-alignment)
+- 本地文件（YAML/TOML/JSON 配置、配对库、轨迹可选落盘、插件 manifest）；无强制 DB (004-openclaw-alignment)
+- Python 3.10+（与仓库一致） + 既有 `openai`、`pydantic`、`python-dotenv`；Agent Loop 首期复用 `core/hello_agents`（ReAct 等）并**抽象**为可插拔 `LoopDriver`；MCP 侧引入官方 **`mcp`（Python SDK）** 或等价 stdio 客户端（见 [research.md](./research.md)）；常驻可选 **`supervisor` 脚本 + launchd/systemd 单元** 或进程内 `asyncio` 长活循环（见 research） (004-openclaw-alignment)
 
 - Python 3.10+（与仓库现有代码一致） + `openai`, `pydantic`, `python-dotenv`, `google-search-results`, `tavily-python` (003-tool-system)
 
@@ -28,8 +33,10 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.10+（与仓库现有代码一致）: Follow standard conventions
 
 ## Recent Changes
+- 004-openclaw-alignment: Added Python 3.10+（与仓库一致） + 既有 `openai`、`pydantic`、`python-dotenv`；Agent Loop 首期复用 `core/hello_agents`（ReAct 等）并**抽象**为可插拔 `LoopDriver`；MCP 侧引入官方 **`mcp`（Python SDK）** 或等价 stdio 客户端（见 [research.md](./research.md)）；常驻可选 **`supervisor` 脚本 + launchd/systemd 单元** 或进程内 `asyncio` 长活循环（见 research）
+- 004-openclaw-alignment: Added Python 3.10+（与仓库一致） + 既有 `openai`、`pydantic`、`python-dotenv`；Agent Loop 首期复用 `core/hello_agents`（ReAct 等）并**抽象**为可插拔 `LoopDriver`；MCP 侧引入官方 **`mcp`（Python SDK）** 或等价 stdio 客户端（见 [research.md](./research.md)）；常驻可选 **`supervisor` 脚本 + launchd/systemd 单元** 或进程内 `asyncio` 长活循环（见 research）
+- 004-openclaw-alignment: Added Python 3.10+（与仓库及 `.cursor/rules/specify-rules.mdc` 一致） + `openai`, `pydantic`, `python-dotenv`；工具链含 `google-search-results` / `tavily-python`（搜索类能力）；可选 `langgraph` / `langchain-core`（已有 LangGraph 示例，本特性默认以 `hello_agents` 栈为主路径以降低耦合）
 
-- 003-tool-system: Added Python 3.10+（与仓库现有代码一致） + `openai`, `pydantic`, `python-dotenv`, `google-search-results`, `tavily-python`
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

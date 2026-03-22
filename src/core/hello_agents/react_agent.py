@@ -2,11 +2,14 @@
 from __future__ import annotations
 
 import re
-from typing import List, Optional, Tuple
+from typing import TYPE_CHECKING, Callable, List, Optional, Tuple
 
 from core.llm.llm_client import HelloAgentsLLM
 
 from .agent import Agent
+
+if TYPE_CHECKING:
+    from core.runtime.trace import AssistantRunTrace
 from .config import Config
 from .message import Message
 from .tool_registry import ToolRegistry
@@ -61,7 +64,36 @@ class ReActAgent(Agent):
         self.prompt_template = custom_prompt if custom_prompt else MY_REACT_PROMPT
         self.verbose = verbose
 
-    def run(self, input_text: str, **kwargs: object) -> str:
+    def _complete_llm_turn(
+        self,
+        messages: List[dict],
+        *,
+        current_step: int,
+        llm_stream_callback: Optional[Callable[[int, str, str], None]],
+        **llm_kwargs: object,
+    ) -> str:
+        """单次 Chat 调用：可选流式，返回 assistant 全文（strip 后）。"""
+
+        if llm_stream_callback is not None:
+            llm_stream_callback(current_step, "", "step_start")
+            parts: List[str] = []
+            for piece in self.llm.stream_invoke(messages, **llm_kwargs):
+                parts.append(piece)
+                llm_stream_callback(current_step, "".join(parts), "delta")
+            text = "".join(parts).strip()
+            llm_stream_callback(current_step, text, "end")
+            return text
+        out = self.llm.invoke(messages, **llm_kwargs)
+        return (out or "").strip()
+
+    def run(
+        self,
+        input_text: str,
+        *,
+        trace: Optional["AssistantRunTrace"] = None,
+        llm_stream_callback: Optional[Callable[[int, str, str], None]] = None,
+        **kwargs: object,
+    ) -> str:
         self.current_history = []
         current_step = 0
         if self.verbose:
@@ -81,9 +113,24 @@ class ReActAgent(Agent):
             )
 
             messages = [{"role": "user", "content": prompt}]
-            response_text = self.llm.invoke(messages, **kwargs)
+            response_text = self._complete_llm_turn(
+                messages,
+                current_step=current_step,
+                llm_stream_callback=llm_stream_callback,
+                **kwargs,
+            )
 
             _thought, action = self._parse_output(response_text)
+
+            if trace is not None:
+                trace.add_step(
+                    "thought",
+                    {
+                        "step": current_step,
+                        "thought": (_thought or "")[:2000],
+                        "action_preview": (action or "")[:500],
+                    },
+                )
 
             if action and action.strip().startswith("Finish"):
                 final_answer = self._parse_finish_payload(action)
@@ -93,7 +140,31 @@ class ReActAgent(Agent):
 
             if action:
                 tool_name, tool_input = self._parse_tool_action(action)
+                if trace is not None:
+                    call_kind = (
+                        "mcp_call" if tool_name.startswith("mcp__") else "tool_call"
+                    )
+                    trace.add_step(
+                        call_kind,
+                        {
+                            "step": current_step,
+                            "tool_name": tool_name,
+                            "tool_input_preview": (tool_input or "")[:800],
+                        },
+                    )
                 observation = self.tool_registry.execute_tool(tool_name, tool_input)
+                if trace is not None:
+                    res_kind = (
+                        "mcp_result" if tool_name.startswith("mcp__") else "tool_result"
+                    )
+                    trace.add_step(
+                        res_kind,
+                        {
+                            "step": current_step,
+                            "tool_name": tool_name,
+                            "observation_preview": (observation or "")[:2000],
+                        },
+                    )
                 self.current_history.append(f"Action: {action.strip()}")
                 self.current_history.append(f"Observation: {observation}")
 

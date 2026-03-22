@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local/hello-agent/specs/004-openclaw-alignment/trace-run.schema.json",
+  "title": "AssistantRunTrace",
+  "type": "object",
+  "required": ["run_id", "steps"],
+  "properties": {
+    "run_id": { "type": "string", "minLength": 1 },
+    "parent_run_id": { "type": "string" },
+    "depth": { "type": "integer", "minimum": 0 },
+    "steps": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/trace_step" }
+    }
+  },
+  "$defs": {
+    "trace_step": {
+      "type": "object",
+      "required": ["index", "kind"],
+      "properties": {
+        "index": { "type": "integer", "minimum": 0 },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "thought",
+            "tool_call",
+            "tool_result",
+            "skill_activate",
+            "mcp_call",
+            "mcp_result",
+            "subagent_delegate",
+            "subagent_result",
+            "final",
+            "error"
+          ]
+        },
+        "payload": { "type": "object", "additionalProperties": true }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
