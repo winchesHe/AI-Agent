@@ -22,6 +22,17 @@ logger = logging.getLogger(__name__)
 _TELEGRAM_MAX_MESSAGE_LEN = 4000
 
 
+def _thread_send_kwargs(message: object) -> dict:
+    """论坛超级群话题：出站消息须带 message_thread_id，否则会落到错误分区。"""
+    tid = getattr(message, "message_thread_id", None)
+    if tid is None:
+        return {}
+    try:
+        return {"message_thread_id": int(tid)}
+    except (TypeError, ValueError):
+        return {}
+
+
 def _truncate_for_telegram(text: str, max_len: int = _TELEGRAM_MAX_MESSAGE_LEN) -> str:
     if len(text) <= max_len:
         return text
@@ -140,26 +151,38 @@ def _loop_result_to_user_text(result: LoopResult) -> str:
     return "处理失败，未返回具体原因，请稍后重试或查看服务端日志。"
 
 
-async def _reply_safe(message: object, text: str) -> None:
-    """Send *text* to Telegram; never let send errors swallow user-visible feedback."""
+async def _reply_safe(
+    text: str,
+    *,
+    reply_target: object,
+    thread_hint: object | None = None,
+) -> None:
+    """Send *text* as a reply to *reply_target* (thread chain under progress).
+
+    *thread_hint* supplies ``message_thread_id`` for forum topics when *reply_target*
+    might omit it (typically the user's inbound message).
+    """
     from telegram.error import TelegramError
 
     reply = _truncate_for_telegram((text or "").strip())
     if not reply:
         reply = "未生成有效回复，请稍后重试。"
 
-    reply_fn = getattr(message, "reply_text", None)
+    reply_fn = getattr(reply_target, "reply_text", None)
     if reply_fn is None:
-        logger.error("telegram message has no reply_text")
+        logger.error("telegram reply_target has no reply_text")
         return
 
+    src = thread_hint if thread_hint is not None else reply_target
+    extra = _thread_send_kwargs(src)
+
     try:
-        await reply_fn(reply)
+        await reply_fn(reply, **extra)
     except TelegramError as exc:
         logger.exception("Telegram reply_text failed: %s", exc)
         short = f"无法发送完整回复（{type(exc).__name__}）。请查看日志或缩短问题后重试。"
         try:
-            await reply_fn(_truncate_for_telegram(short, max_len=500))
+            await reply_fn(_truncate_for_telegram(short, max_len=500), **extra)
         except Exception:
             logger.exception("Telegram fallback reply also failed")
     except Exception as exc:
@@ -169,7 +192,8 @@ async def _reply_safe(message: object, text: str) -> None:
                 _truncate_for_telegram(
                     f"回复发送异常（{type(exc).__name__}），任务可能已执行。",
                     max_len=500,
-                )
+                ),
+                **extra,
             )
         except Exception:
             logger.exception("Telegram fallback reply also failed")
@@ -230,7 +254,7 @@ def run_telegram_polling(
             return
         text = getattr(message, "text", None) or ""
         if not text.strip():
-            await message.reply_text("请发送文本消息。")
+            await message.reply_text("请发送文本消息。", **_thread_send_kwargs(message))
             return
 
         source = InboundSource(channel="telegram", sender_id=str(user.id))
@@ -241,12 +265,16 @@ def run_telegram_polling(
             except AccessDeniedError:
                 await message.reply_text(
                     "当前账号未配对或无权使用受限能力。请让管理员执行："
-                    f" pair add --channel telegram --sender-id {user.id}"
+                    f" pair add --channel telegram --sender-id {user.id}",
+                    **_thread_send_kwargs(message),
                 )
                 return
 
         loop = asyncio.get_running_loop()
-        status_msg = await message.reply_text("🔄 已收到，准备运行…")
+        status_msg = await message.reply_text(
+            "🔄 已收到，准备运行…",
+            **_thread_send_kwargs(message),
+        )
 
         lines_lock = threading.Lock()
         progress_lines: list[str] = []
@@ -309,34 +337,40 @@ def run_telegram_polling(
             result = await asyncio.to_thread(_run_agent)
         except Exception:
             logger.exception("LoopDriver failed for telegram user %s", user.id)
+            err_plain = "内部错误，请稍后重试。详情已写入日志。"
+            err_edit = _truncate_for_telegram(f"❌ {err_plain}", max_len=500)
             try:
-                await status_msg.edit_text(
-                    _truncate_for_telegram(
-                        "❌ 内部错误，请稍后重试。详情已写入日志。",
-                        max_len=500,
-                    )
-                )
+                await status_msg.edit_text(err_edit)
             except Exception:
                 logger.exception("Failed to edit status after LoopDriver error")
-            await _reply_safe(message, "内部错误，请稍后重试。详情已写入日志。")
+                await _reply_safe(
+                    err_plain,
+                    reply_target=status_msg,
+                    thread_hint=message,
+                )
             return
 
         if result.success:
-            footer = "✅ 本轮已完成，回答见下一条消息。"
+            footer = "✅ 本轮已完成，回答已回复在本进度消息下方。"
         else:
-            footer = "⚠️ 本轮未完全成功，说明见下一条消息。"
+            footer = "⚠️ 本轮未完全成功，说明已回复在本进度消息下方。"
         try:
             await status_msg.edit_text(_truncate_for_telegram(footer, max_len=500))
         except Exception:
             logger.debug("final status edit skipped", exc_info=True)
 
-        await _reply_safe(message, _loop_result_to_user_text(result))
+        await _reply_safe(
+            _loop_result_to_user_text(result),
+            reply_target=status_msg,
+            thread_hint=message,
+        )
 
     async def handle_start(update: object, _context: ContextTypes.DEFAULT_TYPE) -> None:
         message = getattr(update, "message", None)
         if message:
             await message.reply_text(
-                "Hello-Agent 已连接。直接发送文本即可对话。"
+                "Hello-Agent 已连接。直接发送文本即可对话。",
+                **_thread_send_kwargs(message),
             )
 
     app = (

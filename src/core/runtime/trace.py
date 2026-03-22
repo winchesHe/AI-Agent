@@ -17,7 +17,7 @@ from typing import Any, Callable, Dict, List, Literal, Optional
 
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 
 # ---------- 常量 ----------
 
@@ -77,6 +77,8 @@ class AssistantRunTrace(BaseModel):
     depth: int = Field(default=0, ge=0, description="嵌套深度")
     steps: List[TraceStep] = Field(default_factory=list, description="步骤列表")
 
+    _on_step_hook: Optional[Callable[[TraceStep], None]] = PrivateAttr(default=None)
+
     # ---- builder 方法 ----
 
     def add_step(
@@ -87,6 +89,12 @@ class AssistantRunTrace(BaseModel):
         """追加一条步骤并自动分配 index。"""
         step = TraceStep(index=len(self.steps), kind=kind, payload=payload)
         self.steps.append(step)
+        hook = self._on_step_hook
+        if hook is not None:
+            try:
+                hook(step)
+            except Exception:
+                logger.exception("trace on_step callback failed")
         return step
 
     def to_json(self, indent: int = 2) -> str:
@@ -135,21 +143,6 @@ def new_trace(
         parent_run_id=parent_run_id,
         depth=depth,
     )
-    if on_step is None:
-        return trace
-
-    _orig_add = trace.add_step
-
-    def _wrapped_add(
-        kind: StepKind,
-        payload: Optional[Dict[str, Any]] = None,
-    ) -> TraceStep:
-        step = _orig_add(kind, payload)
-        try:
-            on_step(step)
-        except Exception:
-            logger.exception("trace on_step callback failed")
-        return step
-
-    trace.add_step = _wrapped_add  # type: ignore[method-assign]
+    if on_step is not None:
+        trace._on_step_hook = on_step
     return trace
