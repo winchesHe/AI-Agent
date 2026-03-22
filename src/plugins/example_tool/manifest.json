@@ -5,7 +5,7 @@
   "entry_point": "plugins.example_tool.tool:create_tool",
   "permissions": ["read_only"],
   "metadata": {
-    "name": "示例工具",
-    "description": "一个简单的回声工具，用于验证插件加载"
+    "name": "示例 Tool 占位",
+    "description": "仅保留插件清单结构示例，不注册任何工具（原 echo 已移除）"
   }
 }

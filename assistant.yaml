@@ -51,11 +51,12 @@ telegram:
   bot_token_ref: 'TELEGRAM_BOT_TOKEN'
 
 # ── 本地工作区（OpenClaw 式：显式根目录内读写）────────────────
+# 默认关闭：不向助理暴露 workspace_* 工具。需要时再设 enabled: true 并配置 allowed_roots。
 # allowed_roots 相对路径以本配置文件所在目录为基准
 workspace:
-  enabled: true
+  enabled: false
   allowed_roots:
-    - '.' # 仅仓库/配置目录；可按需改为子目录以缩小暴露面
+    - '.' # 启用后生效；可改为子目录以缩小暴露面
   max_read_bytes: 262144
   max_write_bytes: 262144
 

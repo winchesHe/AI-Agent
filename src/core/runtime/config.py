@@ -120,11 +120,12 @@ class LimitsConfig(BaseModel):
 class WorkspaceConfig(BaseModel):
     """Bounded local filesystem access (OpenClaw-style workspace tools).
 
+    Default ``enabled=False``：不向模型注册 ``local_workspace`` 工具，除非显式打开。
     Relative paths in ``allowed_roots`` resolve against the directory that contains
     the loaded config file (same rule as ``plugins.search_paths``).
     """
 
-    enabled: bool = True
+    enabled: bool = False
     allowed_roots: List[str] = Field(default_factory=list)
     max_read_bytes: int = 262_144
     max_write_bytes: int = 262_144

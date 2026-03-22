@@ -106,6 +106,7 @@
 - **MCP**：指行业通行的「用于向助理暴露工具的外部协议/约定」；具体版本集合以实现文档为准，但须在规格层承诺「可对接标准 MCP 形态端点」。
 - **分阶段交付**：语音、画布、全量多通道 IM 等可继续分里程碑；**US1–US3 为本次愿景的核心验收带**，US4–US5 与核心并行规划但可按发布列车分期上线。
 - **合规**：外部检索、消息通道与插件能力须遵守适用法律与平台政策。
+- **默认 Tool 呈现**：`example-tool` 插件仅作 manifest 结构示例，**不向注册表注册任何工具**（历史上用于冒烟的 `echo` 已移除）。**仓库默认配置与 `WorkspaceConfig` 默认均不启用本地工作区**：未将 `workspace.enabled` 设为 `true` 并配置非空 `allowed_roots` 时，**不得**向模型注册 `local_workspace` 的三个工具。用户显式启用后，三个人类可读工具描述固定为：`workspace_list_dir` — 列出允许工作区内的目录内容；`workspace_read_file` — 读取允许工作区内的 UTF-8 文本文件；`workspace_write_file` — 写入或覆盖允许工作区内的 UTF-8 文本文件（具体参数模式以实现为准）。
 
 ### Functional Requirements
 

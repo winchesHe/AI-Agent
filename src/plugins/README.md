@@ -11,7 +11,7 @@
 ```text
 src/plugins/
 ├── README.md                  # 本文件
-├── example_tool/              # 参考 Tool 插件（待添加）
+├── example_tool/              # 参考 Tool 插件（manifest 占位，默认不注册工具）
 │   ├── manifest.json
 │   └── tool.py
 ├── example_skill/             # 参考 Skill 插件（待添加）
@@ -108,7 +108,7 @@ register(host)  # host 为插件宿主提供的注册上下文
 
 | 目录 | Kind | 任务编号 | 说明 |
 |------|------|----------|------|
-| `example_tool/` | `tool` | T014 | 注册一个原子工具 |
+| `example_tool/` | `tool` | T014 | manifest 结构示例（默认不注册工具；目录/文件能力见 `local_workspace`，须在配置中 `workspace.enabled: true`） |
 | `example_skill/` | `skill` | T015 | 注入系统提示 + 工具白名单 |
 | `example_subagent/` | `subagent` | T017 | 委派子 Agent，受限深/限时/限轮次 |
 

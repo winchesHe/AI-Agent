@@ -71,7 +71,7 @@ description: "Task list for 004-openclaw-alignment（Agent Loop + 插件 + 7×24
 
 - [x] T012 [US2] Implement manifest discovery, JSON schema validation, and load order (priority / id conflict rules) in `src/core/runtime/plugin_host.py`
 - [x] T013 [US2] Merge plugin-provided tools into runtime `ToolRegistry` facade used by `LoopDriver` in `src/core/runtime/plugin_host.py`
-- [x] T014 [P] [US2] Add reference Tool plugin: `src/plugins/example_tool/manifest.json` + entry module registering one atomic tool
+- [x] T014 [P] [US2] Add reference Tool plugin: `src/plugins/example_tool/manifest.json` + 入口模块（现为 manifest 结构示例，默认不注册工具；原 echo 已移除；Tool 冒烟可依赖搜索等；`local_workspace` 默认不启用见 `workspace.enabled`）
 - [x] T015 [US2] Implement skill activation (prompt addendum + tool allowlist) in `src/core/runtime/skill_loader.py` plus reference `src/plugins/example_skill/`
 - [x] T016 [US2] Implement MCP stdio client bridge mapping remote tools to local adapters with timeout and `transport` vs `business` error classes in `src/core/runtime/mcp_bridge.py`
 - [x] T017 [US2] Implement SubAgent delegation with `max_delegation_depth` and tool allowlist in `src/core/runtime/subagent.py` plus reference `src/plugins/example_subagent/`
@@ -146,7 +146,7 @@ description: "Task list for 004-openclaw-alignment（Agent Loop + 插件 + 7×24
 - [x] T031 Add `WorkspaceConfig` and `workspace` field on `ConfigurationProfile` in `src/core/runtime/config.py`
 - [x] T032 Extend `PluginHost` with `PluginLoadContext`, `resolve_workspace_roots`, multi-tool factory return, and `workspace=` in `src/core/runtime/plugin_host.py`; wire in `src/main.py`
 - [x] T033 Implement `src/plugins/local_workspace/` (manifest + `workspace_list_dir` / `workspace_read_file` / `workspace_write_file`) and JSON multi-arg parsing in `src/core/hello_agents/tool_registry.py`
-- [x] T034 Add `workspace` / `sensitive_plugin_ids` example in `assistant.yaml` and workspace diagnostics in `src/core/runtime/doctor.py`
+- [x] T034 Add `workspace` / `sensitive_plugin_ids` example in `assistant.yaml` and workspace diagnostics in `src/core/runtime/doctor.py`（仓库示例 `workspace.enabled` 默认 `false`）
 
 ---
 

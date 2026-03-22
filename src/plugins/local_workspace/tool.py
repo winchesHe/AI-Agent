@@ -59,10 +59,7 @@ class _WorkspaceToolBase(BaseTool):
 
 class WorkspaceListDirTool(_WorkspaceToolBase):
     name = "workspace_list_dir"
-    description = (
-        "在允许的本地工作区内列出目录内容。参数 path 为相对或绝对路径（须在 allowed_roots 内）；"
-        "多参数时使用 JSON：{\"path\": \".\", \"recursive\": false}。"
-    )
+    description = "列出允许工作区内的目录内容"
 
     def get_parameters(self) -> List[ToolParameter]:
         return [
@@ -117,10 +114,7 @@ class WorkspaceListDirTool(_WorkspaceToolBase):
 
 class WorkspaceReadFileTool(_WorkspaceToolBase):
     name = "workspace_read_file"
-    description = (
-        "读取允许工作区内 UTF-8 文本文件；超过配置 max_read_bytes 会截断说明。"
-        "参数为文件路径字符串。"
-    )
+    description = "读取允许工作区内的 UTF-8 文本文件"
 
     def get_parameters(self) -> List[ToolParameter]:
         return [
@@ -158,10 +152,7 @@ class WorkspaceReadFileTool(_WorkspaceToolBase):
 
 class WorkspaceWriteFileTool(_WorkspaceToolBase):
     name = "workspace_write_file"
-    description = (
-        "在允许工作区内写入或覆盖 UTF-8 文本文件。"
-        "必须使用 JSON 参数：{\"path\": \"相对或绝对路径\", \"content\": \"文本内容\"}。"
-    )
+    description = "写入或覆盖允许工作区内的 UTF-8 文本文件"
 
     def get_parameters(self) -> List[ToolParameter]:
         return [

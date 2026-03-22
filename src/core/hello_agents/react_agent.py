@@ -175,21 +175,22 @@ class ReActAgent(Agent):
 
     def _parse_output(self, text: str) -> Tuple[str, str]:
         thought = ""
-        action = ""
         for line in text.splitlines():
             s = line.strip()
             if s.lower().startswith("thought:"):
                 thought = s.split(":", 1)[1].strip()
-            elif s.lower().startswith("action:"):
-                action = s.split(":", 1)[1].strip()
+        # 必须捕获从「行首 Action:」到全文末尾，否则多行 Finish[...] 只会留下第一行，
+        # 导致无闭合 ] 时 _parse_finish_payload 只得到前缀（例如「目前可用工具有：」）。
+        m = re.search(r"(?im)^\s*Action:\s*(.*)\Z", text, re.DOTALL)
+        action = m.group(1).strip() if m else ""
         if not action:
-            m = re.search(
+            m2 = re.search(
                 r"Action:\s*(.+)",
                 text,
                 flags=re.IGNORECASE | re.DOTALL,
             )
-            if m:
-                action = m.group(1).strip()
+            if m2:
+                action = m2.group(1).strip()
         return thought, action
 
     def _parse_tool_action(self, action: str) -> Tuple[str, str]:
